@@ -8,6 +8,9 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import AuthForm from './components/auth/AuthForm';
+import InteractiveMap from './components/map/InteractiveMap';
+import CheckoutWizard from './components/transactions/CheckoutWizard';
 
 // Main App Component
 export default function App() {
@@ -24,6 +27,8 @@ export default function App() {
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/map" element={<InteractiveMap />} />
+              <Route path="/checkout/:listingId" element={<CheckoutWizard />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </main>
