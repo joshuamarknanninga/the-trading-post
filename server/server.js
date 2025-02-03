@@ -1,26 +1,34 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import authRoutes from './routes/auth.js';
+import listingRoutes from './routes/listings.js';
+import userRoutes from './routes/users.js';
+import paymentRoutes from './routes/payments.js';
+import errorHandler from './middlewares/error.js';
+
+dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
+// Database Connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Basic route
-app.get('/', (req, res) => {
-  res.send('Local Bazaar API');
-});
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/listings', listingRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/payments', paymentRoutes);
 
-// Start server
-const PORT = process.env.PORT || 3001;
+// Error Handling
+app.use(errorHandler);
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
