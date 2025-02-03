@@ -6,6 +6,7 @@ import listingRoutes from './routes/listings.js';
 import userRoutes from './routes/users.js';
 import paymentRoutes from './routes/payments.js';
 import errorHandler from './middlewares/error.js';
+import connectDB from './config/db.js';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(express.json());
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
+  connectDB();
 
 // Routes
 app.use('/api/auth', authRoutes);
