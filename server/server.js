@@ -19,6 +19,11 @@ const PORT = process.env.PORT || 3001;
 app.use(express.json());
 app.use(errorHandler);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/listings', listingRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI)
