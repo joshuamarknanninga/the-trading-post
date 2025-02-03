@@ -8,6 +8,7 @@ import paymentRoutes from './routes/payments.js';
 import errorHandler from './middlewares/error.js';
 import connectDB from './config/db.js';
 import errorHandler from './middlewares/error.js';
+import transactionRoutes from './routes/transactions.js';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(express.json());
 app.use(errorHandler);
+app.use('/api/transactions', transactionRoutes);
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI)
