@@ -1,20 +1,19 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
-import { FiHome, FiShoppingCart, FiMap, FiUser, FiLogIn, FiLogOut, FiPlusCircle } from 'react-icons/fi';
+import { FiHome, FiShoppingCart, FiMap, FiUser, FiLogIn, FiLogOut, FiPlusCircle, FiBook } from 'react-icons/fi';
 import AuthProvider, { useAuth } from './context/AuthContext';
-import { SellPage } from './pages/SellPage';
-import { ProfilePage } from './pages/ProfilePage';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
-import { NotFoundPage } from './pages/NotFoundPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import AuthForm from './components/auth/AuthForm';
 import InteractiveMap from './components/map/InteractiveMap';
 import CheckoutWizard from './components/transactions/CheckoutWizard';
-import Dashboard from './components/admin/Dashboard';
+import PdfLibrary from './components/pdf/PdfLibrary';
+import LoadingSpinner from './components/ui/LoadingSpinner';
+import ErrorAlert from './components/ui/ErrorAlert';
+import SocialAuth from './components/auth/SocialAuth';
+import ConfirmationModal from './components/ui/ConfirmationModal';
 
-// Main App Component
 export default function App() {
+  const [error, setError] = useState(null);
+
   return (
     <AuthProvider>
       <Router>
@@ -29,18 +28,21 @@ export default function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/map" element={<InteractiveMap />} />
+              <Route path="/pdf-library" element={<PdfLibrary />} />
               <Route path="/checkout/:listingId" element={<CheckoutWizard />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </main>
           <Footer />
+          <ConfirmationModal />
+          <ErrorAlert message={error} onClose={() => setError(null)} />
         </div>
       </Router>
     </AuthProvider>
   );
 }
 
-// Navigation Bar Component
+// NavBar Component
 function NavBar() {
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -59,6 +61,7 @@ function NavBar() {
             <NavLink to="/" icon={<FiHome />} text="Home" />
             <NavLink to="/marketplace" icon={<FiShoppingCart />} text="Marketplace" />
             <NavLink to="/map" icon={<FiMap />} text="Local Map" />
+            <NavLink to="/pdf-library" icon={<FiBook />} text="PDF Library" />
             
             {user ? (
               <>
@@ -90,6 +93,7 @@ function NavBar() {
             <MobileNavLink to="/" icon={<FiHome />} text="Home" />
             <MobileNavLink to="/marketplace" icon={<FiShoppingCart />} text="Marketplace" />
             <MobileNavLink to="/map" icon={<FiMap />} text="Local Map" />
+            <MobileNavLink to="/pdf-library" icon={<FiBook />} text="PDF Library" />
             
             {user ? (
               <>
@@ -146,40 +150,207 @@ function HomePage() {
   );
 }
 
-function MarketplacePage() {
-  const [listings, setListings] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+function SellPage() {
+  const { user } = useAuth();
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    price: '',
+    category: 'other'
+  });
 
-  useEffect(() => {
-    // Fetch listings from API
-    setTimeout(() => {
-      setListings(sampleListings);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Submit logic here
+      console.log('Submitting:', formData);
+      alert('Listing created successfully!');
+    } catch (error) {
+      console.error('Submission error:', error);
+    }
+  };
 
   return (
-    <div>
+    <div className="max-w-2xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Create New Listing</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Title</label>
+          <input
+            type="text"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            className="w-full p-2 border rounded-lg"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Description</label>
+          <textarea
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            className="w-full p-2 border rounded-lg h-32"
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Price ($)</label>
+            <input
+              type="number"
+              value={formData.price}
+              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+              className="w-full p-2 border rounded-lg"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Category</label>
+            <select
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              className="w-full p-2 border rounded-lg"
+            >
+              <option value="eggs">Eggs</option>
+              <option value="vegetables">Vegetables</option>
+              <option value="dairy">Dairy</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" className="btn-primary w-full">
+          Publish Listing
+        </button>
+      </form>
+    </div>
+  );
+}
+
+function ProfilePage() {
+  const { user, logout } = useAuth();
+  const [editMode, setEditMode] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    location: user?.location || ''
+  });
+
+  const handleSave = async () => {
+    try {
+      // Save profile logic
+      setEditMode(false);
+      alert('Profile updated successfully!');
+    } catch (error) {
+      console.error('Profile update error:', error);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Local Marketplace</h2>
-        <select className="p-2 border rounded-lg">
-          <option>Newest First</option>
-          <option>Price: Low to High</option>
-          <option>Price: High to Low</option>
-        </select>
+        <h1 className="text-2xl font-bold">Your Profile</h1>
+        <button
+          onClick={editMode ? handleSave : () => setEditMode(true)}
+          className="btn-primary"
+        >
+          {editMode ? 'Save Changes' : 'Edit Profile'}
+        </button>
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      <div className="bg-white p-6 rounded-lg shadow-sm space-y-4">
+        <ProfileField 
+          label="Name"
+          value={profileData.name}
+          editMode={editMode}
+          onChange={(value) => setProfileData({ ...profileData, name: value })}
+        />
+        <ProfileField 
+          label="Email"
+          value={profileData.email}
+          editMode={editMode}
+          onChange={(value) => setProfileData({ ...profileData, email: value })}
+        />
+        <ProfileField 
+          label="Location"
+          value={profileData.location}
+          editMode={editMode}
+          onChange={(value) => setProfileData({ ...profileData, location: value })}
+        />
+      </div>
+
+      <div className="mt-8">
+        <button
+          onClick={logout}
+          className="btn-secondary w-full"
+        >
+          Log Out
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function LoginPage() {
+  const { login } = useAuth();
+  const [credentials, setCredentials] = useState({
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await login(credentials.email, credentials.password);
+    } catch (error) {
+      setError('Invalid email or password');
+    }
+  };
+
+  return (
+    <div className="max-w-md mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Welcome Back</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && <div className="text-red-500 p-3 bg-red-50 rounded-lg">{error}</div>}
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Email</label>
+          <input
+            type="email"
+            value={credentials.email}
+            onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+            className="w-full p-2 border rounded-lg"
+            required
+          />
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listings.map(listing => (
-            <ListingCard key={listing.id} listing={listing} />
-          ))}
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Password</label>
+          <input
+            type="password"
+            value={credentials.password}
+            onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+            className="w-full p-2 border rounded-lg"
+            required
+          />
         </div>
-      )}
+
+        <button type="submit" className="btn-primary w-full">
+          Log In
+        </button>
+
+        <SocialAuth />
+
+        <div className="text-center mt-4">
+          <span className="text-gray-600">New user? </span>
+          <Link to="/register" className="text-green-600 hover:underline">
+            Create an account
+          </Link>
+        </div>
+      </form>
     </div>
   );
 }
@@ -196,6 +367,17 @@ function NavLink({ to, icon, text }) {
   );
 }
 
+function MobileNavLink({ to, icon, text }) {
+  return (
+    <Link
+      to={to}
+      className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100"
+    >
+      {icon} {text}
+    </Link>
+  );
+}
+
 function FeatureCard({ title, description, icon }) {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
@@ -206,35 +388,44 @@ function FeatureCard({ title, description, icon }) {
   );
 }
 
-// Add other page components (SellPage, ProfilePage, LoginPage, etc.) similarly
-
-// Styled Components
-const sampleListings = [
-  { id: 1, title: 'Fresh Chicken Eggs', price: 4.99, location: '0.5mi away', category: '🥚 Eggs' },
-  { id: 2, title: 'Organic Tomatoes', price: 3.49, location: '1.2mi away', category: '🥕 Produce' },
-  { id: 3, title: 'Yard Work Help', price: 'Barter', location: '0.8mi away', category: '🔧 Services' },
-];
-
-function ListingCard({ listing }) {
+function ProfileField({ label, value, editMode, onChange }) {
   return (
-    <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-lg">{listing.title}</h3>
-          <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">
-            {listing.category}
-          </span>
-        </div>
-        <p className="text-gray-600 text-sm mb-2">{listing.location}</p>
-        <p className="text-xl font-bold text-green-600">
-          {typeof listing.price === 'number' ? `$${listing.price}` : listing.price}
-        </p>
-      </div>
-      <div className="border-t p-4 bg-gray-50">
-        <button className="btn-secondary w-full">View Details</button>
-      </div>
+    <div>
+      <label className="block text-sm font-medium mb-1">{label}</label>
+      {editMode ? (
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full p-2 border rounded-lg"
+        />
+      ) : (
+        <p className="p-2 bg-gray-50 rounded-lg">{value || 'Not provided'}</p>
+      )}
     </div>
   );
 }
 
-// Add the rest of the components (ProfilePage, SellPage, etc.) following similar patterns
+function Footer() {
+  return (
+    <footer className="bg-gray-800 text-white mt-12 py-6">
+      <div className="container mx-auto px-4 text-center">
+        <p>&copy; {new Date().getFullYear()} LocalBazaar. All rights reserved.</p>
+        <div className="mt-2">
+          <Link to="/privacy" className="text-gray-400 hover:text-white mx-2">Privacy Policy</Link>
+          <Link to="/terms" className="text-gray-400 hover:text-white mx-2">Terms of Service</Link>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <div className="text-center py-20">
+      <h1 className="text-6xl font-bold text-gray-800 mb-4">404</h1>
+      <p className="text-xl text-gray-600 mb-8">Page not found</p>
+      <Link to="/" className="btn-primary inline-block">Return Home</Link>
+    </div>
+  );
+}
