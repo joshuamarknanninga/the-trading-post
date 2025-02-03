@@ -11,6 +11,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import AuthForm from './components/auth/AuthForm';
 import InteractiveMap from './components/map/InteractiveMap';
 import CheckoutWizard from './components/transactions/CheckoutWizard';
+import Dashboard from './components/admin/Dashboard';
 
 // Main App Component
 export default function App() {
