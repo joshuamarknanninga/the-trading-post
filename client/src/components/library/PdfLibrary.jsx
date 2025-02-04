@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { useDropzone } from 'react-dropzone';
+import AuthContext from '../context/AuthContext';
 
 const PdfLibrary = () => {
   const { user } = useAuth();

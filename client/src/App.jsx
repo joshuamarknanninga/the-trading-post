@@ -5,7 +5,7 @@ import AuthProvider, { useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import InteractiveMap from './components/map/InteractiveMap';
 import CheckoutWizard from './components/transactions/CheckoutWizard';
-import PdfLibrary from './components/pdf/PdfLibrary';
+import PdfLibrary from './components/library/PdfLibrary';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import ErrorAlert from './components/ui/ErrorAlert';
 import SocialAuth from './components/auth/SocialAuth';
