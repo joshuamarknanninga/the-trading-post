@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { FiHome, FiShoppingCart, FiMap, FiUser, FiLogIn, FiLogOut, FiPlusCircle, FiBook } from 'react-icons/fi';
 import AuthProvider, { useAuth } from './context/AuthContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 import InteractiveMap from './components/map/InteractiveMap';
 import CheckoutWizard from './components/transactions/CheckoutWizard';
 import PdfLibrary from './components/library/PdfLibrary';
-import LoadingSpinner from './components/ui/LoadingSpinner';
+import LoadingSpinner from './components/auth/LoadingSpinner';
 import ErrorAlert from './components/ui/ErrorAlert';
 import SocialAuth from './components/auth/SocialAuth';
 import ConfirmationModal from './components/ui/ConfirmationModal';
@@ -22,11 +22,11 @@ export default function App() {
           <main className="container mx-auto px-4 py-8">
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/marketplace" element={<MarketplacePage />} />
+              {/* <Route path="/marketplace" element={<MarketplacePage />} /> */}
               <Route path="/sell" element={<ProtectedRoute><SellPage /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+              {/* <Route path="/register" element={<RegisterPage />} /> */}
               <Route path="/map" element={<InteractiveMap />} />
               <Route path="/pdf-library" element={<PdfLibrary />} />
               <Route path="/checkout/:listingId" element={<CheckoutWizard />} />

@@ -1,6 +1,6 @@
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { useEffect, useState } from 'react';
-import { useGeolocation } from '../hooks/useGeolocation';
+import { useGeolocation } from '../hooks/userGeolocation';
 
 const containerStyle = {
   width: '100%',
